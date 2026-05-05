@@ -52,7 +52,7 @@ export default {
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "sdkVersion": "53.0.0",
+    "sdkVersion": "55.0.0",
     
     "extra": {
       SUPABASE_URL: "https://wtcxhhbigmqrmqdyhzcz.supabase.co",
