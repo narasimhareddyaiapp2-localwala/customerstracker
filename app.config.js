@@ -1,4 +1,8 @@
-import 'dotenv/config';
+try {
+  require('dotenv').config();
+} catch (e) {
+  // dotenv not found, skipping
+}
 
 export default {
   "expo": {
@@ -29,7 +33,9 @@ export default {
       "useNextNotificationsApi": true, 
       "permissions": [
         "android.permission.WAKE_LOCK",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
       ],
       "package": "com.narasimhaexpo.locationtrackermobile"
     },
@@ -44,6 +50,14 @@ export default {
         {
           "photosPermission": "Allow User Tracking to access your photos to upload profile images."
         }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysPermission": "Allow User Tracking to use your location."
+        }
       ]
     ],
     "updates": {
@@ -52,7 +66,7 @@ export default {
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "sdkVersion": "55.0.0",
+    "sdkVersion": "53.0.0",
     
     "extra": {
       SUPABASE_URL: "https://wtcxhhbigmqrmqdyhzcz.supabase.co",

@@ -220,6 +220,35 @@ export default function ProfileScreen({ navigation, user, userProfile, reloadUse
 
   const pickImage = async () => {
     try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions to change your profile picture.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        const publicUrl = await uploadProfileImage(asset.uri, user.id, asset.mimeType || 'image/jpeg');
+        if (publicUrl) {
+          setProfileImage(publicUrl);
+          if (reloadUserProfile) reloadUserProfile();
+        }
+      }
+    } catch (error) {
+      console.error('Pick image error:', error);
+      Alert.alert('Error', 'Failed to pick image: ' + error.message);
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    try {
       const { data, error } = await supabase
         .from('user_push_tokens')
         .select('push_token')
@@ -548,5 +577,17 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     fontSize: 16,
+  },
+  enableNotificationsButton: {
+    backgroundColor: '#34C759',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  enableNotificationsButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

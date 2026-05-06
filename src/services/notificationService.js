@@ -10,6 +10,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -59,20 +61,9 @@ export async function registerForPushNotificationsAsync(user) {
     console.log("✅ Notification permissions granted:", finalStatus);
 
     // 2. Get the correct token based on environment
-    if (Constants.appOwnership === 'standalone' || Constants.appOwnership === 'development') {
-      // In a native build (standalone or development), get the raw FCM token on Android
-      if (Platform.OS === 'android') {
-        const rawTokenObject = await Notifications.getDevicePushTokenAsync();
-        pushToken = rawTokenObject.data;
-        console.log("✅ Raw FCM Token (Android):", pushToken);
-      } else {
-        // For iOS, get the APNs token via getDevicePushTokenAsync
-        // For cross-platform backends, you can still use getDevicePushTokenAsync
-        const rawTokenObject = await Notifications.getDevicePushTokenAsync();
-        pushToken = rawTokenObject.data;
-        console.log("✅ Raw APNs Token (iOS):", pushToken);
-      }
-    } else if (Constants.appOwnership === 'expo') {
+    const isExpoGo = Constants.executionEnvironment === 'storeClient';
+
+    if (isExpoGo) {
       // In Expo Go, get the Expo token
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;
       const expoTokenObject = await Notifications.getExpoPushTokenAsync({ projectId });
@@ -82,6 +73,11 @@ export async function registerForPushNotificationsAsync(user) {
         "Push Token",
         `⚠️ Running in Expo Go. Using Expo Token:\n${pushToken}`
       );
+    } else {
+      // In a native build (standalone or development client), get the raw FCM/APNs token
+      const rawTokenObject = await Notifications.getDevicePushTokenAsync();
+      pushToken = rawTokenObject.data;
+      console.log(`✅ Raw ${Platform.OS === 'android' ? 'FCM' : 'APNs'} Token:`, pushToken);
     }
     
     if (!pushToken) {
@@ -97,7 +93,7 @@ export async function registerForPushNotificationsAsync(user) {
         .from('user_push_tokens')
         .upsert(
           { user_id: user.id, push_token: pushToken },
-          { onConflict: ['push_token'] }
+          { onConflict: 'user_id' }
         )
         .select();
 
