@@ -27,17 +27,22 @@ function fixPathsInFile(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let originalContent = content;
     
-    // We want to replace absolute paths that start with / but are NOT already prefixed with /repoName/
-    // Specifically targeting assets, _expo, and releases
+    // STRATEGY: Replace all occurrences of the repoName prefix if it's already there to "reset"
+    // Then apply the prefix once correctly.
     
-    // Fix src and href in HTML
+    // 1. Remove existing prefixes to prevent doubles (e.g., /customerstracker/customerstracker/ -> /customerstracker/)
+    const doublePrefixRegex = new RegExp(`${prefix}${repoName}/`, 'g');
+    content = content.replace(doublePrefixRegex, prefix);
+
+    // 2. Fix src and href in HTML that start with / but are not yet prefixed
     if (ext === '.html') {
+      // Look for src="/ and href="/ and ensure they become src="/customerstracker/
       content = content.replace(/src="\/(?!(customerstracker\/))/g, `src="${prefix}`);
       content = content.replace(/href="\/(?!(customerstracker\/))/g, `href="${prefix}`);
     }
 
-    // Fix strings in JS/CSS/JSON/HTML
-    // This matches "/assets/", "/_expo/", "/releases/" if not already preceded by repoName
+    // 3. Fix strings in JS/CSS/JSON/HTML that match known asset folders
+    // Matches "/assets/", "/_expo/", "/releases/" if not already prefixed
     content = content.replace(/(["'])\/(?!(customerstracker\/))(assets|_expo|releases)\//g, `$1${prefix}$3/`);
 
     if (content !== originalContent) {
