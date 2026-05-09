@@ -61,6 +61,13 @@ if (fs.existsSync(distPath)) {
       const dest = path.join(distReleasesPath, file);
       fs.copyFileSync(src, dest);
       console.log(`Copied ${file} to dist/releases/`);
+      
+      // Also provide a .apk version if it's the .7z file
+      if (file === 'customerstracker.7z') {
+        const apkDest = path.join(distReleasesPath, 'customerstracker.apk');
+        fs.copyFileSync(src, apkDest);
+        console.log(`Also copied customerstracker.7z to dist/releases/customerstracker.apk for compatibility`);
+      }
     });
   }
 
