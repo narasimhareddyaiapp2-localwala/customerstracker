@@ -27,16 +27,15 @@ function fixPathsInFile(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let originalContent = content;
     
-    // STRATEGY: Replace all occurrences of the repoName prefix if it's already there to "reset"
-    // Then apply the prefix once correctly.
-    
-    // 1. Remove existing prefixes to prevent doubles (e.g., /customerstracker/customerstracker/ -> /customerstracker/)
-    const doublePrefixRegex = new RegExp(`${prefix}${repoName}/`, 'g');
-    content = content.replace(doublePrefixRegex, prefix);
+    // 1. Aggressively fix double-prefixing: /repo/repo/ -> /repo/
+    // We use a loop to handle potential triple-prefixing if it ever occurs
+    const doublePattern = new RegExp(`${prefix}${repoName}/`, 'g');
+    while (content.includes(`${prefix}${repoName}/`)) {
+      content = content.replace(doublePattern, prefix);
+    }
 
     // 2. Fix src and href in HTML that start with / but are not yet prefixed
     if (ext === '.html') {
-      // Look for src="/ and href="/ and ensure they become src="/customerstracker/
       content = content.replace(/src="\/(?!(customerstracker\/))/g, `src="${prefix}`);
       content = content.replace(/href="\/(?!(customerstracker\/))/g, `href="${prefix}`);
     }
