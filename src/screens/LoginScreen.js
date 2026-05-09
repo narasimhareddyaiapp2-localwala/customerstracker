@@ -227,7 +227,7 @@ export default function LoginScreen({ navigation, route, onAuthSuccess }) {
           <View style={styles.downloadContainer}>
             <Text style={styles.downloadText}>Android App: </Text>
             <TouchableOpacity onPress={() => Linking.openURL('https://narasimhareddyaiapp6.github.io/customerstracker/releases/customerstracker.7z')}>
-              <Text style={styles.downloadLink}>build download here (.7z)</Text>
+              <Text style={styles.downloadLink}>Download .7z Build</Text>
             </TouchableOpacity>
           </View>
         </View>

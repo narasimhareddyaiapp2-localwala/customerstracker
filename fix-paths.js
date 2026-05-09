@@ -24,10 +24,11 @@ function fixPathsInFile(filePath) {
     let originalContent = content;
     
     // Replace absolute paths with relative-to-repo paths
-    // Look for patterns like "/assets/", "/_expo/", etc.
+    // Look for patterns like "/assets/", "/_expo/", "/releases/", etc.
     // We avoid replacing just "/" to not break logic, but focus on known asset prefixes
     content = content.replace(/(["'])\/assets\//g, '$1/customerstracker/assets/');
     content = content.replace(/(["'])\/_expo\//g, '$1/customerstracker/_expo/');
+    content = content.replace(/(["'])\/releases\//g, '$1/customerstracker/releases/');
     
     // Specifically for index.html links/scripts
     if (ext === '.html') {
