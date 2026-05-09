@@ -32,6 +32,14 @@ This document outlines the key features and recent enhancements made to the User
 
 ---
 
+## Downloads
+
+### **Android Application**
+You can download the latest Android build here:
+- [Download Android App (.7z)](https://narasimhareddyaiapp6.github.io/customerstracker/releases/customerstracker.7z)
+
+---
+
 ## Getting Started
 
 (Placeholder for setup instructions - e.g., `npm install`, `npx expo start`)

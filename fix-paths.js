@@ -46,6 +46,24 @@ if (fs.existsSync(distPath)) {
   walkDir(distPath, (filePath) => {
     fixPathsInFile(filePath);
   });
+
+  // Copy releases folder to dist if it exists
+  const releasesPath = path.join(__dirname, 'releases');
+  const distReleasesPath = path.join(distPath, 'releases');
+  
+  if (fs.existsSync(releasesPath)) {
+    if (!fs.existsSync(distReleasesPath)) {
+      fs.mkdirSync(distReleasesPath, { recursive: true });
+    }
+    
+    fs.readdirSync(releasesPath).forEach(file => {
+      const src = path.join(releasesPath, file);
+      const dest = path.join(distReleasesPath, file);
+      fs.copyFileSync(src, dest);
+      console.log(`Copied ${file} to dist/releases/`);
+    });
+  }
+
   console.log('Successfully fixed paths for GitHub Pages deployment');
 } else {
   console.error('dist directory not found. Please run "npx expo export --platform web" first.');
