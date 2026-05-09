@@ -2,10 +2,14 @@ const fs = require('fs');
 const path = require('path');
 
 const distPath = path.join(__dirname, 'dist');
-const indexPath = path.join(distPath, 'index.html');
-const nojekyllPath = path.join(distPath, '.nojekyll');
+const repoName = 'customerstracker';
+const prefix = `/${repoName}/`;
 
 // Create .nojekyll
+const nojekyllPath = path.join(distPath, '.nojekyll');
+if (!fs.existsSync(distPath)) {
+  fs.mkdirSync(distPath, { recursive: true });
+}
 fs.writeFileSync(nojekyllPath, '');
 console.log('Created .nojekyll');
 
@@ -23,18 +27,18 @@ function fixPathsInFile(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let originalContent = content;
     
-    // Replace absolute paths with relative-to-repo paths
-    // Look for patterns like "/assets/", "/_expo/", "/releases/", etc.
-    // We avoid replacing just "/" to not break logic, but focus on known asset prefixes
-    content = content.replace(/(["'])\/assets\//g, '$1/customerstracker/assets/');
-    content = content.replace(/(["'])\/_expo\//g, '$1/customerstracker/_expo/');
-    content = content.replace(/(["'])\/releases\//g, '$1/customerstracker/releases/');
+    // We want to replace absolute paths that start with / but are NOT already prefixed with /repoName/
+    // Specifically targeting assets, _expo, and releases
     
-    // Specifically for index.html links/scripts
+    // Fix src and href in HTML
     if (ext === '.html') {
-      content = content.replace(/src="\//g, 'src="/customerstracker/');
-      content = content.replace(/href="\//g, 'href="/customerstracker/');
+      content = content.replace(/src="\/(?!(customerstracker\/))/g, `src="${prefix}`);
+      content = content.replace(/href="\/(?!(customerstracker\/))/g, `href="${prefix}`);
     }
+
+    // Fix strings in JS/CSS/JSON/HTML
+    // This matches "/assets/", "/_expo/", "/releases/" if not already preceded by repoName
+    content = content.replace(/(["'])\/(?!(customerstracker\/))(assets|_expo|releases)\//g, `$1${prefix}$3/`);
 
     if (content !== originalContent) {
       fs.writeFileSync(filePath, content);
