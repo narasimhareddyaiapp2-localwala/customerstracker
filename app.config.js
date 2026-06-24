@@ -70,8 +70,8 @@ export default {
     "sdkVersion": "53.0.0",
     
     "extra": {
-      SUPABASE_URL: "https://wtcxhhbigmqrmqdyhzcz.supabase.co",
-      SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Y3hoaGJpZ21xcm1xZHloemN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxNjE3ODgsImV4cCI6MjA2NzczNzc4OH0.AIViaiRT2odHJM2wQXl3dDZ69YxEj7t_7UiRFqEgZjY",
+      SUPABASE_URL: "https://dlnykrppzraashzxzlec.supabase.co",
+      SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsbnlrcnBwenJhYXNoenh6bGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNjE2OTIsImV4cCI6MjA5NzgzNzY5Mn0.J8P3pZwAUgF46c-OxZ0-DHkXNBUqt8zm2OMhKqMfTjU",
       "eas": {
         "projectId": "22ad9b0d-c4e9-4bba-bad2-9e93641a6cb0"
       }
