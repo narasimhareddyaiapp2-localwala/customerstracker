@@ -251,16 +251,67 @@ export default function App() {
   }, [isAuthenticated, user?.id, userProfile?.location_status]);
 
   const loadUserProfile = async (userId) => {
-    const { data } = await supabase.from('users').select('*').eq('id', userId).single();
-    if (data) {
-      // Save for background task
-      await OfflineStorageService.saveUserId(data.id);
-      await OfflineStorageService.saveUserEmail(data.email);
+    try {
+      const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
+      
+      let profileData = data;
+      
+      // Auto-heal: Ensure user profile exists in public.users table.
+      // If it doesn't, or if it exists but lacks the mobile number (since the database trigger might not copy it),
+      // sync/create it from auth metadata.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        if (error || !data) {
+          console.log('Profile not found in users table, attempting to create one...');
+          const newProfile = {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.email.split('@')[0],
+            mobile: user.user_metadata?.mobile || null,
+            user_type: user.user_metadata?.user_type || 'user',
+            location_status: 0
+          };
+          
+          const { data: insertedData, error: insertError } = await supabase
+            .from('users')
+            .upsert(newProfile)
+            .select()
+            .single();
+            
+          if (insertError) {
+            console.error('Failed to auto-create user profile:', insertError);
+          } else {
+            profileData = insertedData;
+          }
+        } else if (data && !data.mobile && user.user_metadata?.mobile) {
+          console.log('Profile exists but lacks mobile number. Syncing from auth metadata...');
+          const { data: updatedData, error: updateError } = await supabase
+            .from('users')
+            .update({ mobile: user.user_metadata.mobile })
+            .eq('id', userId)
+            .select()
+            .single();
+            
+          if (updateError) {
+            console.error('Failed to sync mobile to user profile:', updateError);
+          } else {
+            profileData = updatedData;
+          }
+        }
+      }
+      
+      if (profileData) {
+        // Save for background task
+        await OfflineStorageService.saveUserId(profileData.id);
+        await OfflineStorageService.saveUserEmail(profileData.email);
 
-      const groups = await fetchUserGroups(data.id, data.user_type);
-      const profileWithGroups = { ...data, groups };
-      setUserProfile(profileWithGroups);
-      return profileWithGroups;
+        const groups = await fetchUserGroups(profileData.id, profileData.user_type);
+        const profileWithGroups = { ...profileData, groups };
+        setUserProfile(profileWithGroups);
+        return profileWithGroups;
+      }
+    } catch (e) {
+      console.error('Error in loadUserProfile:', e);
     }
   };
 

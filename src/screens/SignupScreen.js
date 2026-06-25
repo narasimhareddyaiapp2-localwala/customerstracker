@@ -40,19 +40,6 @@ export default function SignupScreen({ navigation, route }) {
 
     setLoading(true);
     try {
-      // First, check if user already exists in users table
-      const { data: existingUser, error: checkError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (existingUser) {
-        Alert.alert('Signup Error', 'User with this email already exists. Please login instead.');
-        setLoading(false);
-        return;
-      }
-
       // Create auth account first
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -69,10 +56,11 @@ export default function SignupScreen({ navigation, route }) {
       if (error) {
         Alert.alert('Signup Error', error.message);
       } else {
-        // Create user profile in users table
+        // Create or update user profile in users table.
+        // We use upsert because a database trigger may have already created the profile row.
         const { data: userData, error: profileError } = await supabase
           .from('users')
-          .insert({
+          .upsert({
             id: data.user.id,
             email: email,
             name: name,

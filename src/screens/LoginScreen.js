@@ -31,20 +31,7 @@ export default function LoginScreen({ navigation, route, onAuthSuccess }) {
 
     setLoading(true);
     try {
-      // First, check if user exists in users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      if (userError || !userData) {
-        Alert.alert('Login Error', 'User not found. Please check your email or sign up.');
-        setLoading(false);
-        return;
-      }
-
-      // Now try to authenticate with Supabase auth
+      // Authenticate directly with Supabase auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,

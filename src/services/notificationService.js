@@ -64,6 +64,10 @@ export async function registerForPushNotificationsAsync(user) {
     const isExpoGo = Constants.executionEnvironment === 'storeClient';
 
     if (isExpoGo) {
+      if (Platform.OS === 'android') {
+        console.warn("⚠️ Remote push notifications are not supported in Expo Go for Android on SDK 53+. Skipping push token registration.");
+        return null;
+      }
       // In Expo Go, get the Expo token
       const projectId = Constants.expoConfig?.extra?.eas?.projectId;
       const expoTokenObject = await Notifications.getExpoPushTokenAsync({ projectId });
